@@ -1,0 +1,30 @@
+using System;
+using System.Linq;
+
+class Program
+{
+    // Hàm chính
+    static void Main(string[] args)
+    {
+        // Tạo đối tượng Random
+        Random random = new Random();
+        
+        // Tạo dãy số ngẫu nhiên
+        int[] randomNumbers = new int[10]; // Dãy gồm 10 số
+        for (int i = 0; i < randomNumbers.Length; i++)
+        {
+            randomNumbers[i] = random.Next(1, 100); // Số ngẫu nhiên từ 1 đến 99
+        }
+
+        // In ra dãy số ngẫu nhiên ban đầu
+        Console.WriteLine("Dãy số ngẫu nhiên ban đầu:");
+        Console.WriteLine(string.Join(", ", randomNumbers));
+
+        // Sắp xếp dãy số (sắp xếp tăng dần)
+        Array.Sort(randomNumbers);
+
+        // In ra dãy số đã sắp xếp
+        Console.WriteLine("Dãy số sau khi sắp xếp:");
+        Console.WriteLine(string.Join(", ", randomNumbers));
+    }
+}
