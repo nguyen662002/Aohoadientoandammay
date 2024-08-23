@@ -5,7 +5,7 @@ using System;
 
 class Program
 {
-    // Hàm để kiểm tra xem một số có phải là số nguyên tố hay không
+    
     static bool KtSoNguyenTo(int number)
     {
         if (number <= 1) return false;
