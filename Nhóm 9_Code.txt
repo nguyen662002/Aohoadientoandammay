@@ -1,0 +1,187 @@
+from ._anvil_designer import Form1Template
+from anvil import *
+
+class Form1(Form1Template):
+    def __init__(self, **properties):
+        self.init_components(**properties)
+
+    def linear_search(self, arr, target):
+        steps = []
+        indices = []
+        checked_elements = []
+
+        for index, value in enumerate(arr):
+            checked_elements.append(value)
+            steps.append(f'Bước {index + 1}: Kiểm tra phần tử {value} tại chỉ số {index} ({"Khớp !" if value == target else "Không khớp"})')
+            if value == target:
+                indices.append(index)
+
+        return indices, steps, checked_elements
+
+    def binary_search(self, arr, target):
+        steps = []
+        left = 0
+        right = len(arr) - 1
+        checked_elements = []
+
+        steps.append(f'Bước 1: Danh sách đã sắp xếp là: {arr}')
+
+        step_count = 1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+            checked_elements.append(arr[mid])
+            steps.append(f'Bước {step_count + 1}:')
+            steps.append(f'  - `left = {left}`, `right = {right}`')
+            steps.append(f'  - `mid = {left} + ({right} - {left}) // 2 = {mid}`')
+            steps.append(f'  - Giá trị tại `mid`: `{arr[mid]}`')
+
+            if arr[mid] < target:
+                steps.append(f'  - So sánh: `{arr[mid]} < {target}` → Cập nhật `left = mid + 1 = {mid + 1}`')
+                left = mid + 1
+            elif arr[mid] > target:
+                steps.append(f'  - So sánh: `{arr[mid]} > {target}` → Cập nhật `right = mid - 1 = {mid - 1}`')
+                right = mid - 1
+            else:
+                steps.append(f'  - So sánh: `{arr[mid]} == {target}` → Tìm thấy!')
+                steps.append(f'  - Giá trị cần tìm `{target}` được tìm thấy tại vị trí `{mid}`.')
+                return mid, steps, checked_elements
+
+            step_count += 1
+
+        steps.append(f'  - Không tìm thấy số `{target}` trong danh sách.')
+        return -1, steps, checked_elements
+
+    def approximate_search(self, arr, target):
+        steps = []
+        sorted_arr = sorted(arr)
+        steps.append(f'Bước 1: Danh sách đã sắp xếp là: {sorted_arr}')
+        
+        steps.append(f'Bước 2: Giá trị cần tìm là: {target}')
+        
+        checked_elements = []
+        closest_value = sorted_arr[0]
+        
+        for value in sorted_arr:
+            checked_elements.append(value)
+            if abs(value - target) < abs(closest_value - target):
+                closest_value = value
+
+        index = sorted_arr.index(closest_value)
+        steps.append(f'Bước 3: Phần tử gần nhất với {target} là {closest_value} tại chỉ số {index} trong danh sách đã sắp xếp.')
+        
+        steps.append(f'Dãy đã duyệt qua: {checked_elements}')
+        
+        return index, steps
+
+    def linked_list_search(self, head, target):
+        current = head
+        steps = []
+        indices = []
+        index = 0
+
+        while current:
+            steps.append(f'Bước {index + 1}: Kiểm tra {current.value} tại chỉ số {index}')
+            if current.value == target:
+                indices.append(index)  # Lưu vị trí nếu tìm thấy
+                #return index, steps
+            current = current.next
+            index += 1
+        if indices:
+            steps.append(f'Giá trị `{target}` được tìm thấy tại các vị trí: {indices}.')
+        else:
+            steps.append(f'Giá trị `{target}` không có trong danh sách.')
+
+        return indices, steps
+        #return -1, steps
+
+    def hash_search(self, arr, target):
+        steps = []
+        hash_table = {}
+        checked_elements = []
+
+        # Tạo bảng băm
+        steps.append(f'Bước 1: Tạo bảng băm từ dãy số: {arr}')
+        
+        for index, value in enumerate(arr):
+            checked_elements.append(value)
+            
+            # Nếu giá trị đã tồn tại trong bảng băm, thêm chỉ số vào danh sách
+            if value in hash_table:
+                hash_table[value].append(index)
+                steps.append(f'  - Phần tử {value} đã tồn tại. Thêm chỉ số {index}.')
+            else:
+                hash_table[value] = [index]
+                steps.append(f'  - Thêm phần tử mới {value} tại chỉ số {index}.')
+
+        steps.append(f'  - Bảng băm: {hash_table}')
+
+        # Tìm kiếm trong bảng băm
+        steps.append(f'Bước 2: Tìm kiếm giá trị `{target}` trong bảng băm.')
+        if target in hash_table:
+            indices = hash_table[target]
+            steps.append(f'  - Số `{target}` được tìm thấy tại các chỉ số: {indices}.')
+            return indices, steps, checked_elements  # Chỉ lưu giá trị đã tìm thấy
+        else:
+            steps.append(f'  - Không tìm thấy số `{target}` trong bảng băm.')
+            return -1, steps, []
+
+    def button_1_click(self, **event_args):
+        input_data = self.text_box_1.text.split(',')
+        target = int(self.text_box_2.text)
+        algorithm = self.drop_down_1.selected_value
+
+        global arr
+        arr = [int(x.strip()) for x in input_data]
+        result = ''
+        steps = []
+
+        if algorithm == 'Tìm kiếm tuần tự':
+            indices, steps, checked_elements = self.linear_search(arr, target)
+            if indices:
+                result = f'Tìm thấy số {target} ở chỉ số: {", ".join(map(str, indices))}'
+            else:
+                result = f'Không tìm thấy số {target}.'
+            checked_trace = " -> ".join(map(str, checked_elements))
+            steps.append(f'Dãy đã duyệt qua: {checked_trace}')
+
+        elif algorithm == 'Tìm kiếm nhị phân':
+            sorted_arr = sorted(arr)
+            index, search_steps, checked_elements = self.binary_search(sorted_arr, target)
+            steps += search_steps
+            result = f'Tìm thấy số {target} tại chỉ số: {index}' if index != -1 else f'Không tìm thấy số {target}.'
+            checked_trace = " -> ".join(map(str, checked_elements))
+            steps.append(f'Dãy đã duyệt qua: {checked_trace}')
+
+        elif algorithm == 'Tìm kiếm gần đúng':
+            index, steps = self.approximate_search(arr, target)
+            result = f'Phần tử gần nhất với {target} là tại chỉ số: {index}' if index != -1 else f'Không tìm thấy số {target}.'
+
+        elif algorithm == 'Tìm kiếm trong danh sách liên kết':
+            head = self.create_linked_list(arr)
+            index, steps = self.linked_list_search(head, target)
+            result = f'Tìm thấy số {target} tại chỉ số: {index}' if index != -1 else f'Không tìm thấy số {target}.'
+
+        elif algorithm == 'Tìm kiếm theo hàm băm':
+            indices, steps, checked_elements = self.hash_search(arr, target)
+            if indices != -1:
+                result = f'Tìm thấy số {target} tại các chỉ số: {", ".join(map(str, indices))}'
+            else:
+                result = f'Không tìm thấy số {target}.'
+            checked_trace = " -> ".join(map(str, checked_elements))
+            steps.append(f'Dãy đã duyệt qua: {checked_trace}')
+
+        self.label_result.text = result + '\n' + '\n'.join(steps)
+
+    def create_linked_list(self, arr):
+        class Node:
+            def __init__(self, value):
+                self.value = value
+                self.next = None
+
+        head = Node(arr[0])
+        current = head
+        for value in arr[1:]:
+            current.next = Node(value)
+            current = current.next
+        return head
